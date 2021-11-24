@@ -1,0 +1,3 @@
+import Simulation
+
+Simulation.run()
