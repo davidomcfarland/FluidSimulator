@@ -80,6 +80,11 @@ class rectangle(space):
         self.xy  = [ self.x,  self.y]
         self.dxy = [self.dx, self.dy]
 
+        self.P = np.zeros(self.shape)
+
+        self.norm = None
+        self.cmap = None
+
         # Initialize Slices - Space
         self.i   = i   = slice(1, Nx-1)
         self.im1 = im1 = slice(0, Nx-2)
@@ -156,6 +161,15 @@ class rectangle(space):
                 self.boundaries[i].SetType(types[i])
             except IndexError:
                 self.boundaries[i].SetType()
+
+    def PressureField(self, x, y):
+        xi = int(np.round((x - self.xstart)/self.dx))
+        yi = int(np.round((y - self.ystart)/self.dy))
+
+        try:
+            return self.P[xi][yi]
+        except:
+            raise IndexError("Particle has left Field")
     
     def VelocityField(self, x, y):
         xi = int(np.round((x - self.xstart)/self.dx))

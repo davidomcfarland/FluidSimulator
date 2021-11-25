@@ -2,8 +2,12 @@ from ..classes import particle
 from ..libs import rand
 from ..constants import PARTICLE_SHAPE, PARTICLE_COLOR, PARTICLE_SIZE, PARTICLE_XSPACING, PARTICLE_YSPACING
 
+import numpy as np 
+na = np.array
+nap = np.append
+
 def InitializeParticles(ss, ax):
-    particles = []
+    particles = na([])
     box_xstart, box_xend, box_ystart, box_yend = ss.box
 
     for i in range(int(ss.Nx/PARTICLE_XSPACING)):
@@ -29,10 +33,9 @@ def InitializeParticles(ss, ax):
                     col = PARTICLE_COLOR
 
                 # Create a new particle object, including a matplotlib line object representing it
-                newParticle = particle(pos, vel)
-                newParticle.plot_item = ax.plot(*pos, PARTICLE_SHAPE, color=col, markersize=PARTICLE_SIZE)[0]
+                newParticle = particle(pos, vel, col)
 
                 # update the particle list
-                particles = [*particles, newParticle]
+                particles = nap(particles, newParticle)
     #### For-loop over
     return particles

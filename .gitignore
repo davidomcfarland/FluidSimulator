@@ -1,2 +1,4 @@
 *.pyc
 launch.json
+images/*
+*.mp4

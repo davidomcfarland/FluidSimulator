@@ -1,6 +1,10 @@
-from ..libs import np, rand
+from ..libs import rand
 from ..classes import particle
 from ..constants import PARTICLE_SHAPE, PARTICLE_COLOR, PARTICLE_SIZE, PARTICLE_XSPACING, PARTICLE_YSPACING
+
+import numpy as np 
+na = np.array
+nap = np.append
 
 def InjectParticles(ss, particles, numParticles, ax):
     ######## Drop Particles into grid
@@ -23,11 +27,10 @@ def InjectParticles(ss, particles, numParticles, ax):
             col = PARTICLE_COLOR
         
         # create particle object, including matplotlib representation
-        newParticle = particle(pos, vel)
-        newParticle.plot_item = ax.plot(*pos, PARTICLE_SHAPE, color=col, markersize=PARTICLE_SIZE)[0]
+        newParticle = particle(pos, vel, col)
         
         # append particle to the list
-        particles = [*particles, newParticle]
+        particles = nap(particles, newParticle)
     #
 
     return particles

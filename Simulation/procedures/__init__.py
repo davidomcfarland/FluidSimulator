@@ -1,5 +1,6 @@
 from .InitializeFiles import InitializeFiles
 from .InitializeParticles import InitializeParticles
+from .InitializePlot import InitializePlot
 from .InjectParticles import InjectParticles
 from .ParticleStep import ParticleStep
 from .PressureCalc import PressureCalc
