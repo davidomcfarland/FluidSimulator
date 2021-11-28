@@ -6,7 +6,7 @@ from .classes import rectangle
 from .constants import \
     NUMBER_OF_STEPS, TIMESTEP, REYNOLDS_NUMBER, PARTICLE_STEP_FREQ, PARTICLE_STEP_FREQ,\
     PARTICLE_STEPS_PER_INJECTION, PROGRESS_OUTPUT_FREQ, PARTICLES_PER_INJECTION,\
-    PARTICLE_DT, BOX
+    PARTICLE_DT, BOX, SIM_X, SIM_Y, SIM_GRIDSHAPE
 
 import numpy as np 
 
@@ -16,11 +16,10 @@ nap = np.append
 def run():  
     totalTime = time()
     # Initialize Files
-    
     InitializeFiles()
 
     # Initialize Simultation Space (ss)
-    ss = rectangle(xlen=4, xstart=0, ystart=-5, ylen=10, Nx=100, Ny=250, box=BOX)
+    ss = rectangle(x=SIM_X, y=SIM_Y, gridshape=SIM_GRIDSHAPE, box=BOX)
     
     # Initialize Plot Objects
     fig, ax = InitializePlot(ss)
@@ -31,9 +30,6 @@ def run():
 
     # initialize particles
     particles = InitializeParticles(ss, ax)
-
-    # Previous Pressure - initialize as none
-    Pprev = None
 
     stepsTime = time()
     total_particle_time = 0
@@ -49,7 +45,7 @@ def run():
         ddv_up, ddv_ce, d2dv2 = VelocityDerivatives(ss)
 
         # calculate current Pressure derivatives
-        P, ddP = PressureCalc(ss, TIMESTEP, ddv_ce, Pprev)
+        P, ddP = PressureCalc(ss, TIMESTEP, ddv_ce, ss.P)
 
         ss.P = P
 
@@ -66,8 +62,6 @@ def run():
             artists.append(step_artists)
             total_particle_time += time() - particle_time
 
-        # prepare for next step
-        Pprev = P
     print(f"step: {NUMBER_OF_STEPS}")
     print(f"Iteration Steps Complete\n\n")
     stepsTime = time()-stepsTime

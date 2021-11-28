@@ -1,12 +1,6 @@
 from ..libs import np
 
-def PressureCalc(ss, dt, ddv, Pold, maxSteps=int(1e3), tol=1e-3):
-    try:
-        if Pold==None:
-            Pold = np.zeros(ss.shape)
-    except:
-        pass
-
+def PressureCalc(ss, dt, ddv, Pold, maxSteps=int(1e4), tol=1e-3):
     dvx_dx, dvx_dy, dvy_dx, dvy_dy = ddv
     i, j, im1, ip1, jm1, jp1 = ss.slices
     

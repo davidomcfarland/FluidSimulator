@@ -11,7 +11,7 @@ def InitializePlot(ss, figsize=(16,9), facecolor="k"):
     plt.xlim(ss.xstart, ss.xend)
     plt.ylim(ss.ystart, ss.yend)
 
-    ax.set_xticks([])
-    ax.set_yticks([])
+    #ax.set_xticks([])
+    #ax.set_yticks([])
 
     return fig, ax

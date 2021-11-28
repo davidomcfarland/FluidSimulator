@@ -8,14 +8,21 @@ nap = np.append
 
 def InitializeParticles(ss, ax):
     particles = na([])
-    box_xstart, box_xend, box_ystart, box_yend = ss.box
+
+    hasBox = not ss.box==None
 
     for i in range(int(ss.Nx/PARTICLE_XSPACING)):
         for j in range(int(ss.Ny/PARTICLE_YSPACING)):
             xi = ss.x[PARTICLE_XSPACING*i]
             yj = ss.y[PARTICLE_YSPACING*j]
-            # skip gridspaces inside the box
-            if box_xstart<=xi and xi<=box_xend and box_ystart<=yj and yj<=box_yend:
+            # Determine if the particle is inside the box, if there is a box
+            if hasBox:
+                box_xstart, box_xend, box_ystart, box_yend = ss.box
+                inBox = box_xstart<=xi and xi<=box_xend and box_ystart<=yj and yj<=box_yend
+            else:
+                inBox = False
+            # skip gridspaces inside the box, if there is a box
+            if inBox:
                 pass
             else:
                 # randomly distribute stationary particles around the gridpoints, being careful of the box

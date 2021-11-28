@@ -21,16 +21,19 @@ def ParticleStep(ss, particles, dt, ax, contour=False, P=None):
         outRight   = px > ss.xstart + ss.xlen
         outBottom  = py < ss.ystart
         outTop     = py > ss.ystart + ss.ylen
-
-        # In the box
-        inBoxLeft   = px >= ss.box_xstart
-        inBoxRight  = px <= ss.box_xend
-        inBoxBottom = py >= ss.box_ystart
-        inBoxTop    = py <= ss.box_yend
-
-        # combined tests
+        # combined outs
         out   =   outLeft  or   outRight  or   outBottom  or   outTop
-        inBox = inBoxLeft and inBoxRight and inBoxBottom and inBoxTop
+
+        # in the box?
+        if not ss.box==None:
+            inBoxLeft   = px >= ss.box_xstart
+            inBoxRight  = px <= ss.box_xend
+            inBoxBottom = py >= ss.box_ystart
+            inBoxTop    = py <= ss.box_yend
+            # combined ins
+            inBox = inBoxLeft and inBoxRight and inBoxBottom and inBoxTop
+        else:
+            inBox = False
 
         ## Throw out the particle if it is out of bounds
         if out or inBox:
@@ -46,7 +49,6 @@ def ParticleStep(ss, particles, dt, ax, contour=False, P=None):
 
             p.vel = ss.VelocityField(*p.pos)
             p.pos = p.pos + p.vel*dt
-
 
     blues = plt.cm.get_cmap("Blues")
 

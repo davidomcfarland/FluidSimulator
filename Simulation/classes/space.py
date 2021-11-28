@@ -59,61 +59,61 @@ class boundary():
         action(particle)       
 
 class rectangle(space):
-    def __init__(self, xlen=3, ylen=5, xstart=0, ystart=0, Nx=30, Ny=50, U=1, box=None, boundaryTypes="solid"):
-        # load arguments into object
-        self.xlen = xlen
-        self.ylen = ylen
-        self.xstart = xstart
-        self.ystart = ystart
-        self.Nx = Nx
-        self.Ny = Ny
+    def __init__(self, x=(0,15), y=(-5,5), gridshape=(150,100), U=1, pden=(5,5),box=None, boundaryTypes="solid"):
+        # Load Simulation Boundaries
+        self.xstart, self.xend = self.x = x
+        self.ystart, self.yend = self.y = y
 
-        self.xend = xstart + xlen
-        self.yend = ystart + ylen
+        # Calculation Simulation length
+        self.xlen = self.xend-self.xstart
+        self.ylen = self.yend-self.ystart
 
-        self.shape = np.array([Nx, Ny])
+        # Simulation (Finite-Difference) Grid Numbers
+        self.Nx, self.Ny = self.gridshape = gridshape
 
         # Initialize Grid
-        self.x, self.dx = np.linspace(xstart, self.xend, Nx, retstep = True)
-        self.y, self.dy = np.linspace(ystart, self.yend, Ny, retstep = True)
+        self.x, self.dx = np.linspace(self.xstart, self.xend, self.Nx, retstep = True)
+        self.y, self.dy = np.linspace(self.ystart, self.yend, self.Ny, retstep = True)
 
         self.xy  = [ self.x,  self.y]
         self.dxy = [self.dx, self.dy]
 
-        self.P = np.zeros(self.shape)
+        self.P = np.zeros(self.gridshape)
 
         self.norm = None
         self.cmap = None
 
         # Initialize Slices - Space
-        self.i   = i   = slice(1, Nx-1)
-        self.im1 = im1 = slice(0, Nx-2)
-        self.ip1 = ip1 = slice(2, Nx)
-        self.j   = j   = slice(1, Ny-1)
-        self.jm1 = jm1 = slice(0, Ny-2)
-        self.jp1 = jp1 = slice(2, Ny)
+        self.i   = i   = slice(1, self.Nx-1)
+        self.im1 = im1 = slice(0, self.Nx-2)
+        self.ip1 = ip1 = slice(2, self.Nx)
+        self.j   = j   = slice(1, self.Ny-1)
+        self.jm1 = jm1 = slice(0, self.Ny-2)
+        self.jp1 = jp1 = slice(2, self.Ny)
 
         self.slices = i, j, im1, ip1, jm1, jp1
 
         # initialize colorbar
         self.cb = None
 
+        self.box = box
+
         # Initialize optional Box
-        if not box==None:
+        if not self.box==None:
             # read in box parameters
-            box_xstart, box_xend, box_ystart, box_yend = box
+            box_xstart, box_xend, box_ystart, box_yend = self.box
 
             # get gridpoints of nearestbox boundaries
-            self.box_xstart_index = int((box_xstart - xstart)/self.dx)
-            self.box_xend_index   = int((box_xend - xstart)/self.dx)
-            self.box_ystart_index = int((box_ystart - ystart)/self.dy)
-            self.box_yend_index   = int((box_yend - ystart)/self.dy)
+            self.box_xstart_index = int((box_xstart - self.xstart)/self.dx)
+            self.box_xend_index   = int((  box_xend - self.xstart)/self.dx)
+            self.box_ystart_index = int((box_ystart - self.ystart)/self.dy)
+            self.box_yend_index   = int((  box_yend - self.ystart)/self.dy)
 
             # round to nearest grid point
-            self.box_xstart = self.dx*self.box_xstart_index + xstart
-            self.box_xend   = self.dx*self.box_xend_index   + xstart
-            self.box_ystart = self.dy*self.box_ystart_index + ystart
-            self.box_yend   = self.dy*self.box_yend_index   + ystart
+            self.box_xstart = self.dx*self.box_xstart_index + self.xstart
+            self.box_xend   = self.dx*self.box_xend_index   + self.xstart
+            self.box_ystart = self.dy*self.box_ystart_index + self.ystart
+            self.box_yend   = self.dy*self.box_yend_index   + self.ystart
 
             # wrap up box details
             self.box = [self.box_xstart, self.box_xend, self.box_ystart, self.box_yend]
@@ -126,9 +126,9 @@ class rectangle(space):
 
         # Initialize Velocities
         self.U = U
-        self.vx = -4*self.U*(self.y - self.ystart)*(self.y - self.yend)/self.ylen**2 * np.ones(self.shape)
-        self.vy = np.zeros(self.shape)
-        self.v = np.array([self.vx, self.vy])
+        self.vx = -4*self.U*(self.y - self.ystart)*(self.y - self.yend)/self.ylen**2 * np.ones(self.gridshape)
+        self.vy = np.zeros(self.gridshape)
+        self.v  = np.array([self.vx, self.vy])
 
         # create boundaries based on space attributes
         # self.MakeBoundaries()
@@ -139,10 +139,10 @@ class rectangle(space):
     def MakeBoundaries(self):
         ## shorter variables for convenience
         xstart, ystart = self.xstart, self.ystart
-        xlen, ylen = self.xlen, self.ylen
+        xend, yend = self.xend, self.yend
         ## create counterclockwise vertices
-        x1, x2, x3, x4 = xstart, xstart       , xstart + xlen, xstart + xlen
-        y1, y2, y3, y4 = ystart, ystart + xlen, ystart + ylen, ystart
+        x1, x2, x3, x4 = xstart, xstart, xend,   xend
+        y1, y2, y3, y4 = ystart,   yend, yend, ystart
 
         ## create counterclockwise boundaries
         boundary1 = boundary([x1,y1],[x2,y2])
@@ -150,8 +150,9 @@ class rectangle(space):
         boundary3 = boundary([x3,y3],[x4,y4])
         boundary4 = boundary([x4,y4],[x1,y1])
 
-        ## save boundaries as 
+        ## save boundaries
         self.boundaries = np.array([boundary1, boundary2, boundary3, boundary4])   
+
     def SetBoundaryTypes(self, types="solid"):
         if type(types)==type("string"):
             types = [types for i in range(len(self.boundaries))]
@@ -165,7 +166,6 @@ class rectangle(space):
     def PressureField(self, x, y):
         xi = int(np.round((x - self.xstart)/self.dx))
         yi = int(np.round((y - self.ystart)/self.dy))
-
         try:
             return self.P[xi][yi]
         except:
@@ -174,13 +174,9 @@ class rectangle(space):
     def VelocityField(self, x, y):
         xi = int(np.round((x - self.xstart)/self.dx))
         yi = int(np.round((y - self.ystart)/self.dy))
-
         try:
             return np.array([self.vx[xi][yi], self.vy[xi][yi]])
         except:
-            print(self.vx)
-            print(self.xlen, self.ylen)
-            print(x,y,xi,yi)
             raise IndexError("Particle has left Field")
             
         

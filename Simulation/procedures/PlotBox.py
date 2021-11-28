@@ -5,7 +5,6 @@ def PlotBox(box, ax):
     # unpack variables
     xstart, xend, ystart, yend = box
 
-
     # box vertices
     verts = np.array([
         [xstart, ystart],
